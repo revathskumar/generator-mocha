@@ -5,17 +5,16 @@ var assert = require('yeoman-generator').assert;
 var helpers = require('yeoman-generator').test;
 var path = require('path');
 
-describe('Mocha generator test with prompt', function () {
+describe('Mocha generator test with --ui option', function () {
   beforeEach(function (done) {
     this.app = helpers.run(path.join(__dirname, '../generators/app'))
-      .inDir(path.join(__dirname, 'temp'))
-      .withOptions({'skip-install': true});
+      .inDir(path.join(__dirname, 'temp'));
 
     done();
   });
 
   describe('creates expected files', function () {
-    it('on choosing bdd', function (done) {
+    it('when files with ui option bdd', function (done) {
       var expected = [
         'test/spec/test.js',
         'test/.bowerrc',
@@ -24,14 +23,14 @@ describe('Mocha generator test with prompt', function () {
       ];
 
       this.app
-        .withPrompt({ui: 'bdd'})
+        .withOptions({'skip-install': true, ui: 'bdd'})
         .on('end', function () {
           assert.fileContent('test/index.html', /mocha.setup\('bdd'\)/);
           done(assert.file(expected));
         });
     });
 
-    it('on choosing tdd', function (done) {
+    it('when files with ui option tdd', function (done) {
       var expected = [
         'test/spec/test.js',
         'test/.bowerrc',
@@ -40,7 +39,7 @@ describe('Mocha generator test with prompt', function () {
       ];
 
       this.app
-        .withPrompt({ui: 'tdd'})
+        .withOptions({'skip-install': true, ui: 'tdd'})
         .on('end', function () {
           assert.fileContent('test/index.html', /mocha.setup\('tdd'\)/);
           done(assert.file(expected));

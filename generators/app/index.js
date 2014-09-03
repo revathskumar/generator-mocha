@@ -29,7 +29,8 @@ var MochaGenerator = yeoman.generators.Base.extend({
   prompting: function () {
     var cb = this.async();
 
-    var prompts = [{
+    var prompts = [];
+    var dslPrompt = {
       type: 'list',
       name: 'ui',
       message: 'Choose your style of DSL (bdd, tdd)',
@@ -40,14 +41,19 @@ var MochaGenerator = yeoman.generators.Base.extend({
         name: 'TDD',
         value: 'tdd',
       }]
-    }];
+    };
+
+    if (!this.options.ui) {
+      prompts.push(dslPrompt);
+    }
 
     this.prompt(prompts, function (answers) {
-      this.config.set('ui', answers.ui);
-      this.options.ui = answers.ui;
+      this.env.options.ui = answers.ui;
 
       cb();
     }.bind(this));
+
+    this.config.set('ui', this.env.options.ui);
   },
 
   configuring: function () {
@@ -59,11 +65,14 @@ var MochaGenerator = yeoman.generators.Base.extend({
    *
    * @api public
    */
-  setupEnv: function () {
-    this.template('_bower.json', 'test/bower.json');
-    this.template('bowerrc', 'test/.bowerrc');
-    this.template('test.js', 'test/spec/test.js');
-    this.template('index.html', 'test/index.html');
+  writing: {
+    setupEnv: function () {
+      this.log(this.env.options.ui)
+      this.template('_bower.json', 'test/bower.json');
+      this.template('bowerrc', 'test/.bowerrc');
+      this.template('test.js', 'test/spec/test.js');
+      this.template('index.html', 'test/index.html');
+    },
   },
 
   /**
@@ -71,20 +80,21 @@ var MochaGenerator = yeoman.generators.Base.extend({
    *
    * @api public
    */
-  install: function () {
-    if (this.options['skip-install']) {
-      return;
+  install: {
+    aaa: function () {
+      if (this.options['skip-install']) {
+        return;
+      }
+
+      var done = this.async();
+      process.chdir('test');
+
+      this.installDependencies({
+        skipInstall: this.options['skip-install'],
+        skipMessage: this.options['skip-message'],
+        callback: done
+      });
     }
-
-    var done = this.async();
-    process.chdir('test');
-
-    this.installDependencies({
-      npm: false,
-      skipInstall: this.options['skip-install'],
-      skipMessage: true,
-      callback: done
-    });
   }
 });
 
